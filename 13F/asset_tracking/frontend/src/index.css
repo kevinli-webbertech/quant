@@ -1,0 +1,83 @@
+/* Global Styles */
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  white-space: normal !important;
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
+}
+
+/* Code Font */
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+}
+
+/* Ensures all divs allow text wrapping */
+div {
+  white-space: normal !important;
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
+}
+
+/* Table Styling */
+.table-with-border {
+  border-collapse: collapse; /* Ensures borders are merged */
+  width: 100%;
+}
+
+.table-with-border th,
+.table-with-border td {
+  border: 1px solid black; /* Adds border to table cells */
+  padding: 8px; /* Adds padding for better spacing */
+  text-align: left; /* Aligns text to the left */
+  white-space: normal !important;
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
+  max-width: 400px; /* Adjust as needed */
+}
+
+/* Ensure flex containers allow wrapping */
+.flex-container {
+  display: flex;
+  flex-wrap: wrap;
+  overflow: visible !important;
+  align-items: flex-start;
+}
+
+/* Ensure block elements don’t truncate text */
+.block-text {
+  display: block;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  max-width: 100%;
+}
+
+/* Ensures text inside any container is fully visible */
+.container {
+  overflow: visible !important;
+  max-width: 100%;
+}
+
+/* Prevents elements from being cut off in table cells or divs */
+.truncate-fix {
+  white-space: normal !important;
+  overflow: visible !important;
+  word-wrap: break-word !important;
+  max-width: 100% !important;
+}
+
+/* Ensures buttons do not wrap unexpectedly */
+button {
+  white-space: nowrap;
+}
+
+/* Fixes issues with flexbox layouts causing text truncation */
+.flex-item {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
