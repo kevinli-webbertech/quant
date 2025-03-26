@@ -71,4 +71,4 @@ class Stock:
     def funds_data(self):
         print(self.__stock_data.funds_data)
 
-
+    
