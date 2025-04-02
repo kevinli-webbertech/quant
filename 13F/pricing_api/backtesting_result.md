@@ -19,35 +19,35 @@ NIO: 10163.60
 Group4:
 Tesla: 18548.89
 
-## EMA Indicator
+## EMA Indicator 20/50
 Group 1
 
-AAPL: 12394.95
-GOOG: 11799.86 
-MSFT: 11180.40
+AAPL: 11593.20
+GOOG: 11646.89 
+MSFT: 11686.60
 
 Group2: 
-Snow Flake: 8239.60
-Zoom: 12073.30
+Snow Flake: 10315.6
+Zoom: 6834.40
 
 Group3:
-NIO: 10519.20
+NIO: 10332.80
 
 Group4:
-Tesla: 17209.88
+Tesla: 14210.85
 
-## DMA Indicator
+## DMA Indicator 20/50
 Group 1
-AAPL: 11440.10
-GOOG: 11233.91
-MSFT: 11070.20
+AAPL: 12120.95
+GOOG: 11306.86
+MSFT: 12570.80
 
 Group2: 
-Snow Flake: 11942.80
-Zoom: 7857.20
+Snow Flake: 11396.60
+Zoom: 6551
 
 Group3:
-NIO: 10423.40
+NIO: 10236.40
 
 Group4:
-Tesla: 15384.52
+Tesla: 11384.35
