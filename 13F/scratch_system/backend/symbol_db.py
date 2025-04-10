@@ -1,12 +1,13 @@
 import sqlite3
 from datetime import datetime
 
-DB_NAME = "symbol_tracker.db"
+DB_NAME = "scratch.db"  # You can rename this if you'd like
 
 def create_tables():
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
 
+    # Tags table
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS tag (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -14,6 +15,7 @@ def create_tables():
     )
     ''')
 
+    # Symbols table (main content)
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS symbol (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -28,6 +30,7 @@ def create_tables():
     )
     ''')
 
+    # Many-to-many tag linkage table
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS symbol_tag (
         symbol_id INTEGER,
@@ -49,7 +52,7 @@ def add_tag(tag_name):
         cursor.execute("INSERT INTO tag (tag_name) VALUES (?)", (tag_name,))
         conn.commit()
     except sqlite3.IntegrityError:
-        print(f"Tag '{tag_name}' already exists.")
+        pass  # tag already exists
     conn.close()
 
 
@@ -77,9 +80,7 @@ def link_symbol_to_tags(symbol_id, tag_names):
             try:
                 cursor.execute("INSERT INTO symbol_tag (symbol_id, tag_id) VALUES (?, ?)", (symbol_id, tag_id))
             except sqlite3.IntegrityError:
-                pass  # Already linked
-        else:
-            print(f"Tag '{tag_name}' does not exist.")
+                pass  # already linked
     conn.commit()
     conn.close()
 
@@ -99,30 +100,31 @@ def search_symbols_by_tag(tag_name):
     return results
 
 
-# ---------- Example Usage ----------
+def get_symbol_by_id(symbol_id):
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM symbol WHERE id = ?", (symbol_id,))
+    symbol = cursor.fetchone()
+    conn.close()
+    return symbol
 
-if __name__ == "__main__":
-    create_tables()
 
-    # Add tags
-    add_tag("java")
-    add_tag("binary tree")
+def delete_symbol(symbol_id):
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM symbol_tag WHERE symbol_id = ?", (symbol_id,))
+    cursor.execute("DELETE FROM symbol WHERE id = ?", (symbol_id,))
+    conn.commit()
+    conn.close()
 
-    # Add a symbol
-    symbol_id = add_symbol(
-        category="code",
-        title="Java Binary Search Tree Insert",
-        body="public class TreeNode {...}",  # Replace with real code
-        comment="Leetcode question reference",
-        due_date="2025-05-01 00:00:00",
-        priority="medium"
-    )
 
-    # Link symbol to tags
-    link_symbol_to_tags(symbol_id, ["java", "binary tree"])
-
-    # Search by tag
-    matches = search_symbols_by_tag("java")
-    for row in matches:
-        print("ID:", row[0], "| Title:", row[1], "| Category:", row[2], "| Priority:", row[3])
-        print("Body:", row[4][:100] + "...\n")
+def update_symbol(symbol_id, category, title, body, comment, due_date, priority):
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    cursor.execute('''
+        UPDATE symbol
+        SET category = ?, title = ?, body = ?, comment = ?, due_date = ?, priority = ?, last_updated_time = CURRENT_TIMESTAMP
+        WHERE id = ?
+    ''', (category, title, body, comment, due_date, priority, symbol_id))
+    conn.commit()
+    conn.close()

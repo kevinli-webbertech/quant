@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Entry</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body class="p-4">
+<div class="container">
+    <h2>Edit Entry</h2>
+    <form method="POST">
+        <div class="mb-2">
+            <label>Category:</label>
+            <select name="category" class="form-select" required>
+                {% for c in ['code', 'symbol', 'event', 'kb'] %}
+                <option value="{{ c }}" {% if c == symbol[1] %}selected{% endif %}>{{ c }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-2">
+            <label>Title:</label>
+            <input type="text" name="title" class="form-control" value="{{ symbol[2] }}" required>
+        </div>
+        <div class="mb-2">
+            <label>Body:</label>
+            <textarea name="body" class="form-control">{{ symbol[3] }}</textarea>
+        </div>
+        <div class="mb-2">
+            <label>Comment:</label>
+            <input type="text" name="comment" class="form-control" value="{{ symbol[4] }}">
+        </div>
+        <div class="mb-2">
+            <label>Due Date:</label>
+            <input type="datetime-local" name="due_date" class="form-control" value="{{ symbol[6]|replace(' ', 'T') }}">
+        </div>
+        <div class="mb-2">
+            <label>Priority:</label>
+            <select name="priority" class="form-select">
+                {% for p in ['low', 'medium', 'high'] %}
+                <option value="{{ p }}" {% if p == symbol[7] %}selected{% endif %}>{{ p }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button class="btn btn-primary" type="submit">Save Changes</button>
+        <a href="/" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+</body>
+</html>
