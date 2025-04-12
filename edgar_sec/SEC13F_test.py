@@ -16,12 +16,6 @@ class SEC13F:
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.0.0 Safari/537.36"
     }
 
-<<<<<<< Updated upstream
-companies = ['BHLB','Apple Inc.','UBS','META','COST',"AMERICAN EXPRESS CO","ABBOTT LABORATORIES "]
-for company in companies:
-    print(c.cik_lookup(company))
-
-=======
     def __init__(self):
         pd.set_option('display.max_rows', None)
         pd.set_option('display.max_columns', None)
@@ -219,4 +213,4 @@ if __name__ == "__main__":
     c = SEC13F()
     cik_key = "1067983"  # Replace with the CIK number of the company
     c.find_stock_holdings(cik_key)
->>>>>>> Stashed changes
+
