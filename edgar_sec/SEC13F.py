@@ -1,15 +1,19 @@
-import sys
+import datetime
+import time
+import platform
+import requests
+import pandas as pd
+from SEC13F_util import *
+from bs4 import BeautifulSoup
 from selenium import webdriver
+from functools import lru_cache
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
-import requests
-import pandas as pd
-from bs4 import BeautifulSoup
-import platform
-from functools import lru_cache
-import time
-from SEC13F_util import *
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 class SEC13F:
     __headers__ = {
@@ -36,14 +40,14 @@ class SEC13F:
     """
     param: cik_key (https://www.sec.gov/files/company_tickers.json)
     return: the source code of the url of the following,
-     
+
     https://www.sec.gov/edgar/browse/?cik=1350694
-    
+
     For invert and forward search of company name using Edgar Search please refer to the URLs in the README.md in this folder.
     """
 
     @lru_cache(maxsize=256)
-    def __get_page_source(self, cik_key):
+    def __get_page_source(self, cik_key, filing_date=None):
         # required to access sec gov pages (via documentation)
         chrome_options = Options()
         chrome_options.add_argument("--headless")
@@ -62,7 +66,40 @@ class SEC13F:
             driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
 
         driver.get(f"https://www.sec.gov/edgar/browse/?cik={cik_key}")
-        driver.implicitly_wait(20)
+        driver.implicitly_wait(10)
+
+        # If a filing date is provided, set the date fields and trigger the search
+        if filing_date:
+            try:
+                 # Wait for date inputs to exist
+                WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "filingDateFrom")))
+                WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "filingDateTo")))
+
+                from_input = driver.find_element(By.ID, "filingDateFrom")
+                to_input = driver.find_element(By.ID, "filingDateTo")
+
+
+                driver.execute_script("arguments[0].removeAttribute('readonly')", from_input)
+                driver.execute_script("arguments[0].removeAttribute('readonly')", to_input)
+
+                driver.execute_script("arguments[0].removeAttribute('disabled')", from_input)
+                driver.execute_script("arguments[0].removeAttribute('disabled')", to_input)
+
+
+                from_input.clear()
+                to_input.clear()
+
+                from_input.send_keys(filing_date)
+                to_input.send_keys(filing_date)
+                to_input.send_keys(Keys.RETURN)
+
+                WebDriverWait(driver, 10).until(
+                    EC.presence_of_element_located((By.XPATH, f"//span[contains(text(), '{filing_date}')]"))
+                )
+
+
+            except Exception as e:
+                print(f"⚠️ Date filter interaction failed: {e}")
 
         page_source = driver.page_source
         driver.quit()
@@ -87,47 +124,44 @@ class SEC13F:
         else:
             print("No .htm link found within the div.")
 
-    """ 
+    """
     param: cik_key
     return: top holdings of the specified company based on the xml from SEC website.
     Example: https://www.sec.gov/Archives/edgar/data/1350694/000117266125000823/infotable.xml
     """
-    def find_stock_holdings(self, cik_key):
-        page_source = self.__get_page_source(cik_key)
-        if page_source is None:
-            raise Exception("can't grab the initial html page.")
-
+    def find_stock_holdings(self, cik_key, filing_date=None):
+        page_source = self.__get_page_source(cik_key, filing_date)
         soup = BeautifulSoup(page_source, "html.parser")
 
-        response = requests.get(self.__find_htm_link(soup), headers=self.__headers__)
+        # Find first 13F-HR result from the filtered page
+        data_export_divs = soup.find_all("div", {"data-export": "Quarterly report filed by institutional managers, Holdings "})
 
-        if not response.status_code == 200:
-            raise Exception("Failed to get the filing page")
+        if not data_export_divs:
+            raise Exception(f"No 13F-HR filings found for CIK {cik_key} on date {filing_date}")
+
+        for div in data_export_divs:
+            a_tag = div.find("a", class_="filing-link-all-files")
+            if a_tag:
+                selected_filing_url = "https://www.sec.gov" + a_tag.get("href")
+                break
+        else:
+            raise Exception("No .htm link found within filing entry.")
+
+        print("Found the .htm link:", selected_filing_url)
+        response = requests.get(selected_filing_url, headers=self.__headers__)
         soup = BeautifulSoup(response.text, 'html.parser')
 
-        date_div = soup.find('div', class_='formGrouping')
-        filing_date = date_div.find('div', class_='info').get_text().strip()
-
+        filing_date_text = soup.find('div', class_='formGrouping').find('div', class_='info').get_text().strip()
         links = soup.find_all('a', href=True)
-        # eg:
-        # `url: https://www.sec.gov/Archives/edgar/data/1350694/000117266125000823/0001172661-25-000823-index.htm`
         infotable_links = [link.get('href') for link in links if link.get('href').endswith('.xml')]
-
-        if not infotable_links or len(infotable_links) == 0:
+        if not infotable_links:
             raise Exception("No XML files found.")
 
-        # eg:
-        # https://www.sec.gov/Archives/edgar/data/1350694/000117266125000823/infotable.xml
-        latest_13f_filing_xml = infotable_links[-1]
+        xml_url = "https://www.sec.gov" + infotable_links[-1]
+        print("latest_13f_filing XML url:", xml_url)
 
-        ### TODO: Need to break down from here to the end of this function and put it into aggregation_from_sec_xml(xml_url, filing_date)
-        xml_doc_url = f"https://www.sec.gov{latest_13f_filing_xml}"
-
-        print("\nlatest_13f_filing XML url:", xml_doc_url)
-
-        xml_response = requests.get(xml_doc_url, headers=self.__headers__)
-        xml_content = xml_response.text
-        soup = BeautifulSoup(xml_content, 'xml')
+        xml_response = requests.get(xml_url, headers=self.__headers__)
+        soup = BeautifulSoup(xml_response.text, 'xml')
         info_tables = soup.find_all('infoTable')
 
         data = []
@@ -136,12 +170,12 @@ class SEC13F:
             total_value = int(info.find('value').text) if info.find('value') else 0
             shares_table = info.find('shrsOrPrnAmt')
             shares_owned = int(shares_table.find('sshPrnamt').text) if shares_table and shares_table.find('sshPrnamt') else 0
-
-            data.append({'Company Name': company_name,
-                        "Total Value": total_value,
-                        "Shares Owned": shares_owned,
-                        "Filing Date": filing_date
-                        })
+            data.append({
+                'Company Name': company_name,
+                'Total Value': total_value,
+                'Shares Owned': shares_owned,
+                'Filing Date': filing_date_text
+            })
 
         df = pd.DataFrame(data)
         df = df.groupby('Company Name', as_index=False).agg({
@@ -151,31 +185,27 @@ class SEC13F:
         })
 
         df.sort_values(by='Total Value', ascending=False, inplace=True)
-
         df['Total Value'] = df['Total Value'].astype(str)
         df['Shares Owned'] = df['Shares Owned'].astype(str)
 
         for index, row in df.iterrows():
             total_value = int(row['Total Value'])
             shares_owned = int(row['Shares Owned'])
-
             df.at[index, 'Total Value'] = divisibleBy(total_value)
             df.at[index, 'Shares Owned'] = divisibleBy(shares_owned)
 
         return df
 
 
+
     """
-    TODO: 
+    TODO:
         Darren please try this, try to cut the code logic from the bulky logic from the original line 121 to 164
     parameter: https://www.sec.gov/Archives/edgar/data/1350694/000117266125000823/infotable.xml
     return: formated output
     """
 
-    import time
-    import requests
-    from bs4 import BeautifulSoup
-    import pandas as pd
+
 
     def xml_to_pandas(self, xml_url):
         """
@@ -275,14 +305,12 @@ class SEC13F:
     just lookup for one company name to cik.
     """
     def cik_lookup(self, company_name):
-        print(company_name)
-
         # 1350694
         company_tickers = requests.get("https://www.sec.gov/files/company_tickers.json",headers=self.__headers__)
 
         company_data = pd.DataFrame.from_dict(company_tickers.json(), orient='index')
 
-        #fill all ciks with leading zeros for proper cik key 
+        #fill all ciks with leading zeros for proper cik key
         company_data['cik_str'] = company_data['cik_str'].astype(str).str.zfill(10)
 
         #check to see if its one word (ticker) or multiple words (the company title name)
@@ -305,34 +333,34 @@ class SEC13F:
             else:
                 print(f"Company {company_name} not found.")
 
-    ## Darren can you see if you can fill this up
-    def company_name_lookup(company_name:str):
-        pass
 
     """
     Finds overlapping stocks based on *args number of stock dataframes placed into the parameter
-    Make sure you use the find_stock_holdings() function to generate stock holding dataframes and 
+    Make sure you use the find_stock_holdings() function to generate stock holding dataframes and
     input them into this function.
-    
-    Example: 
+
+    Example:
         c = SEC13F()
         c.find_common_holdings_multi_cik(tuple(['1350694', '1067983', '1037389', '1610520']))
-        
+
     Output: A list of company names, displayed vertically.
     """
-    def find_common_holdings_multi_cik(self, list_of_ciks):
+    def find_common_holdings_multi_cik(self, list_of_ciks, filing_date=None):
         if len(list_of_ciks) == 0:
             raise Exception("Invalid input, please check function definitions.")
 
         data_frames = []
         for cik in list_of_ciks:
-           #company_name = self.company_name_lookup(cik)
-           data_frames.append(self.find_stock_holdings(cik))
+            try:
+                data_frames.append(self.find_stock_holdings(cik, filing_date=filing_date))
+            except Exception as e:
+                print(f"Error for CIK {cik}: {e}")
+
+        if not data_frames:
+            print("No valid filings retrieved.")
+            return
+
         same_holdings = aggregate_holdings(data_frames)
-
-        # TODO Print all original names of the company from CIK
-        # company_names = cik_lookup(list_of_ciks)
-
         print("\n------------------Shared Stock Holdings---------------------")
         shared_holdings = same_holdings.split(",")
         for holding in shared_holdings:
@@ -340,27 +368,42 @@ class SEC13F:
         print("\n------------------End Stock Holdings---------------------")
 
 
+
 if __name__ == "__main__":
     c = SEC13F()
 
-    companies = ['BHLB','Apple Inc.','UBS','META','COST',"AMERICAN EXPRESS CO","ABBOTT LABORATORIES "]
+    companies = ['BHLB', 'Apple Inc.', 'UBS', 'META', 'COST', "AMERICAN EXPRESS CO", "ABBOTT LABORATORIES "]
+    ciks = {}
+
+    print("\n------------------Company Names------------------------")
+    print("NAME                                             CIK")
+
+    try:
+        for company in companies:
+            ciks[company] = c.cik_lookup(company)
+    except Exception as e:
+        print(f"Error during CIK lookup: {e}")
+        for company in companies:
+            ciks[company] = "Error"
+
+    max_company_length = max(len(company) for company in companies)
+    cik_column_width = 15
+    spacing = 25
+
+
     for company in companies:
-        print(c.cik_lookup(company))
+        cik = ciks.get(company, "N/A")
+        formatted_line = f"{company:<{max_company_length}}{' ' * spacing}{cik:<{cik_column_width}}"
+        print(formatted_line)
+
+    print("-----------------End of Company------------------------")
+
 
     start = time.time()
-    c.find_common_holdings_multi_cik(tuple(['1350694', '1067983', '1037389', '1610520']))
+    c.find_common_holdings_multi_cik(tuple(['1350694', '1067983', '1037389', '0001350694']), "2024-11-13")
+    # c.find_common_holdings_multi_cik(tuple(['1350694', '1067983', '1037389', '0001350694']))
     end = time.time()
-    print("function timing test:"+ str(end - start))
+    print("function timing test: "+ str(end - start))
 
-
-    #c.aggregation_from_sec_xml("https://www.sec.gov/Archives/edgar/data/1350694/000117266125000823/infotable.xml")
-
-    #start = time.time()
-    #c.find_common_holdings_multi_cik(tuple(['1350694', '1067983', '1037389', '1610520']))
-    #end = time.time()
-    #print("function timing test:"+ str(end - start))
-   
-   
-   # c.aggregation_from_sec_xml("https://www.sec.gov/Archives/edgar/data/1067983/000095012324011775/infotable.xml")
 
 
