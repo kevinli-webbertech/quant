@@ -107,7 +107,7 @@ class SEC13F:
 
     """
     finds first htm link on the sec gov page and then fetches it.
-    It should be the latest 13F-HR filing.
+    It should be the latest quant_analysis-HR filing.
     """
     def __find_htm_link(self, soup):
         data_export_div = soup.find("div",
@@ -133,11 +133,11 @@ class SEC13F:
         page_source = self.__get_page_source(cik_key, filing_date)
         soup = BeautifulSoup(page_source, "html.parser")
 
-        # Find first 13F-HR result from the filtered page
+        # Find first quant_analysis-HR result from the filtered page
         data_export_divs = soup.find_all("div", {"data-export": "Quarterly report filed by institutional managers, Holdings "})
 
         if not data_export_divs:
-            raise Exception(f"No 13F-HR filings found for CIK {cik_key} on date {filing_date}")
+            raise Exception(f"No quant_analysis-HR filings found for CIK {cik_key} on date {filing_date}")
 
         for div in data_export_divs:
             a_tag = div.find("a", class_="filing-link-all-files")

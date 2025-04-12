@@ -1,4 +1,4 @@
-#!/Users/kamisama/Downloads/webbertech_site/13F/asset_tracking/venv/bin/python3.11
+#!/Users/kamisama/Downloads/webbertech_site/quant_analysis/asset_tracking/venv/bin/python3.11
 # -*- coding: utf-8 -*-
 import re
 import sys

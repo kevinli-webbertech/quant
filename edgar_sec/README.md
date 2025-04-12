@@ -24,12 +24,12 @@ In ubuntu, run the following,
 The above driver is a binary,
 
 ```shell
-(base) xiaofengli@xiaofenglx:~/git/webbertech_site/13F/edgar_sec$ chromedriver
+(base) xiaofengli@xiaofenglx:~/git/webbertech_site/quant_analysis/edgar_sec$ chromedriver
 Starting ChromeDriver 133.0.6943.53 (9a80935019b0925b01cc21d254da203bc3986f04-refs/branch-heads/6943@{#1389}) on port 0
 Only local connections are allowed.
 Please see https://chromedriver.chromium.org/security-considerations for suggestions on keeping ChromeDriver safe.
 ChromeDriver was started successfully on port 36357.
-(base) xiaofengli@xiaofenglx:~/git/webbertech_site/13F/edgar_sec$ which chromedriver
+(base) xiaofengli@xiaofenglx:~/git/webbertech_site/quant_analysis/edgar_sec$ which chromedriver
 /usr/bin/chromedriver
 ```
 
