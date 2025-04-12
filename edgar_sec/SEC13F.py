@@ -1,4 +1,5 @@
 import datetime
+import sys
 import time
 import platform
 import requests
@@ -47,7 +48,33 @@ class SEC13F:
     """
 
     @lru_cache(maxsize=256)
-    def __get_page_source(self, cik_key, filing_date=None):
+    def __get_page_source(self, cik_key):
+        # required to access sec gov pages (via documentation)
+        chrome_options = Options()
+        chrome_options.add_argument("--headless")
+        chrome_options.add_argument('user-data-dir=/tmp/chrome_headless')
+        chrome_options.add_argument("start-maximized")
+        chrome_options.add_argument("disable-infobars")
+        chrome_options.add_argument("--no-sandbox")
+        chrome_options.add_argument("--disable-dev-shm-usage")
+        chrome_options.add_argument("--disable-blink-features=AutomationControlled")
+        chrome_options.add_argument(
+            "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36")
+
+        if self.__is_linux():
+            driver = webdriver.Chrome(service=Service(self.__LINUX_CHROME_DRIVER_PATH__), options=chrome_options)
+        else:
+            driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
+
+        driver.get(f"https://www.sec.gov/edgar/browse/?cik={cik_key}")
+        driver.implicitly_wait(20)
+
+        page_source = driver.page_source
+        driver.quit()
+        return page_source
+
+    @lru_cache(maxsize=256)
+    def __get_page_source_by_date(self, cik_key, filing_date=None):
         # required to access sec gov pages (via documentation)
         chrome_options = Options()
         chrome_options.add_argument("--headless")
@@ -130,7 +157,12 @@ class SEC13F:
     Example: https://www.sec.gov/Archives/edgar/data/1350694/000117266125000823/infotable.xml
     """
     def find_stock_holdings(self, cik_key, filing_date=None):
-        page_source = self.__get_page_source(cik_key, filing_date)
+
+        if filing_date is None:
+            page_source = self.__get_page_source(cik_key)
+        else:
+            page_source = self.__get_page_source_by_date(cik_key, filing_date)
+
         soup = BeautifulSoup(page_source, "html.parser")
 
         # Find first quant_analysis-HR result from the filtered page
@@ -400,8 +432,8 @@ if __name__ == "__main__":
 
 
     start = time.time()
-    c.find_common_holdings_multi_cik(tuple(['1350694', '1067983', '1037389', '0001350694']), "2024-11-13")
-    # c.find_common_holdings_multi_cik(tuple(['1350694', '1067983', '1037389', '0001350694']))
+    #c.find_common_holdings_multi_cik(tuple(['1350694', '1067983', '1037389', '0001350694']), "2024-11-13")
+    c.find_common_holdings_multi_cik(tuple(['1350694', '1067983', '1037389', '0001350694']))
     end = time.time()
     print("function timing test: "+ str(end - start))
 
