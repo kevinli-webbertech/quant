@@ -44,7 +44,7 @@ Each company is uniquely identified by a CIK (Central Index Key), a 10-digit ide
 
 ## lru_cache
 
-Cache is added for experiemental usage, but I do not have enough time to see if it makes a difference in timing.
+Cache is added for experimental usage, but I do not have enough time to see if it makes a difference in timing.
 
 ## Business Logic
 
