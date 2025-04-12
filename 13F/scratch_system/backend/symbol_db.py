@@ -1,6 +1,7 @@
 import sqlite3
 from datetime import datetime
 
+
 DB_NAME = "scratch.db"  # You can rename this if you'd like
 
 def create_tables():
