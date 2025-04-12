@@ -1,0 +1,177 @@
+Traceback (most recent call last):
+  File "/home/xiaofengli/git/quant/asset_tracking/backend/app.py", line 3, in <module>
+    from flask_cors import CORS
+ModuleNotFoundError: No module named 'flask_cors'
+✅ Flask API is running at http://127.0.0.1:5000/
+ * Serving Flask app 'app'
+ * Debug mode: on
+[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.191:5000
+[33mPress CTRL+C to quit[0m
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 120-924-889
+127.0.0.1 - - [11/Apr/2025 22:41:13] "[33mGET / HTTP/1.1[0m" 404 -
+127.0.0.1 - - [11/Apr/2025 22:41:13] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+127.0.0.1 - - [11/Apr/2025 22:41:53] "[33mGET /api/accounts HTTP/1.1[0m" 404 -
+127.0.0.1 - - [11/Apr/2025 22:42:09] "GET /api/bank_accounts HTTP/1.1" 200 -
+ * Detected change in '/home/xiaofengli/git/quant/asset_tracking/backend/app.py', reloading
+✅ Flask API is running at http://127.0.0.1:5000/
+ * Restarting with stat
+Traceback (most recent call last):
+  File "/home/xiaofengli/git/quant/asset_tracking/backend/app.py", line 25, in <module>
+    @app.route('/api/bank_accounts', methods=['GET'])
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/xiaofengli/miniconda3/lib/python3.12/site-packages/flask/sansio/scaffold.py", line 362, in decorator
+    self.add_url_rule(rule, endpoint, f, **options)
+  File "/home/xiaofengli/miniconda3/lib/python3.12/site-packages/flask/sansio/scaffold.py", line 47, in wrapper_func
+    return f(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/xiaofengli/miniconda3/lib/python3.12/site-packages/flask/sansio/app.py", line 657, in add_url_rule
+    raise AssertionError(
+AssertionError: View function mapping is overwriting an existing endpoint function: get_bank_accounts
+Traceback (most recent call last):
+  File "/home/xiaofengli/git/quant/asset_tracking/backend/app.py", line 23, in <module>
+    @app.route('/api/bank_accounts', methods=['GET'])
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/xiaofengli/miniconda3/lib/python3.12/site-packages/flask/sansio/scaffold.py", line 362, in decorator
+    self.add_url_rule(rule, endpoint, f, **options)
+  File "/home/xiaofengli/miniconda3/lib/python3.12/site-packages/flask/sansio/scaffold.py", line 47, in wrapper_func
+    return f(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/xiaofengli/miniconda3/lib/python3.12/site-packages/flask/sansio/app.py", line 657, in add_url_rule
+    raise AssertionError(
+AssertionError: View function mapping is overwriting an existing endpoint function: get_bank_accounts
+Traceback (most recent call last):
+  File "/home/xiaofengli/git/quant/asset_tracking/backend/app.py", line 23, in <module>
+    @app.route('/api/bank_accounts', methods=['GET'])
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/xiaofengli/miniconda3/lib/python3.12/site-packages/flask/sansio/scaffold.py", line 362, in decorator
+    self.add_url_rule(rule, endpoint, f, **options)
+  File "/home/xiaofengli/miniconda3/lib/python3.12/site-packages/flask/sansio/scaffold.py", line 47, in wrapper_func
+    return f(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/xiaofengli/miniconda3/lib/python3.12/site-packages/flask/sansio/app.py", line 657, in add_url_rule
+    raise AssertionError(
+AssertionError: View function mapping is overwriting an existing endpoint function: get_bank_accounts
+Traceback (most recent call last):
+  File "/home/xiaofengli/git/quant/asset_tracking/backend/app.py", line 23, in <module>
+    @app.route('/api/bank_accounts', methods=['GET'])
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/xiaofengli/miniconda3/lib/python3.12/site-packages/flask/sansio/scaffold.py", line 362, in decorator
+    self.add_url_rule(rule, endpoint, f, **options)
+  File "/home/xiaofengli/miniconda3/lib/python3.12/site-packages/flask/sansio/scaffold.py", line 47, in wrapper_func
+    return f(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/xiaofengli/miniconda3/lib/python3.12/site-packages/flask/sansio/app.py", line 657, in add_url_rule
+    raise AssertionError(
+AssertionError: View function mapping is overwriting an existing endpoint function: get_bank_accounts
+Traceback (most recent call last):
+  File "/home/xiaofengli/git/quant/asset_tracking/backend/app.py", line 23, in <module>
+    @app.route('/api/bank_accounts', methods=['GET'])
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/xiaofengli/miniconda3/lib/python3.12/site-packages/flask/sansio/scaffold.py", line 362, in decorator
+    self.add_url_rule(rule, endpoint, f, **options)
+  File "/home/xiaofengli/miniconda3/lib/python3.12/site-packages/flask/sansio/scaffold.py", line 47, in wrapper_func
+    return f(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/xiaofengli/miniconda3/lib/python3.12/site-packages/flask/sansio/app.py", line 657, in add_url_rule
+    raise AssertionError(
+AssertionError: View function mapping is overwriting an existing endpoint function: get_bank_accounts
+✅ Flask API is running at http://127.0.0.1:5000/
+ * Serving Flask app 'app'
+ * Debug mode: on
+[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.191:5000
+[33mPress CTRL+C to quit[0m
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 120-924-889
+127.0.0.1 - - [11/Apr/2025 22:50:08] "GET /api/bank_accounts HTTP/1.1" 200 -
+✅ Flask API is running at http://127.0.0.1:5000/
+ * Serving Flask app 'app'
+ * Debug mode: on
+Address already in use
+Port 5000 is in use by another program. Either identify and stop that program, or start the server with a different port.
+127.0.0.1 - - [11/Apr/2025 22:50:33] "[35m[1mGET /api/health HTTP/1.1[0m" 500 -
+Traceback (most recent call last):
+  File "/home/xiaofengli/miniconda3/lib/python3.12/site-packages/flask/app.py", line 1536, in __call__
+    return self.wsgi_app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/xiaofengli/miniconda3/lib/python3.12/site-packages/flask/app.py", line 1514, in wsgi_app
+    response = self.handle_exception(e)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/xiaofengli/miniconda3/lib/python3.12/site-packages/flask_cors/extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ^^^^^^^^^^^^^^^^^^^^
+  File "/home/xiaofengli/miniconda3/lib/python3.12/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/xiaofengli/miniconda3/lib/python3.12/site-packages/flask/app.py", line 920, in full_dispatch_request
+    return self.finalize_request(rv)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/xiaofengli/miniconda3/lib/python3.12/site-packages/flask/app.py", line 939, in finalize_request
+    response = self.make_response(rv)
+               ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/xiaofengli/miniconda3/lib/python3.12/site-packages/flask/app.py", line 1212, in make_response
+    raise TypeError(
+TypeError: The view function for 'get_health_status' did not return a valid response. The function either returned None or ended without a return statement.
+127.0.0.1 - - [11/Apr/2025 22:50:58] "[35m[1mGET /api/health HTTP/1.1[0m" 500 -
+Traceback (most recent call last):
+  File "/home/xiaofengli/miniconda3/lib/python3.12/site-packages/flask/app.py", line 1536, in __call__
+    return self.wsgi_app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/xiaofengli/miniconda3/lib/python3.12/site-packages/flask/app.py", line 1514, in wsgi_app
+    response = self.handle_exception(e)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/xiaofengli/miniconda3/lib/python3.12/site-packages/flask_cors/extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ^^^^^^^^^^^^^^^^^^^^
+  File "/home/xiaofengli/miniconda3/lib/python3.12/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/xiaofengli/miniconda3/lib/python3.12/site-packages/flask/app.py", line 920, in full_dispatch_request
+    return self.finalize_request(rv)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/xiaofengli/miniconda3/lib/python3.12/site-packages/flask/app.py", line 939, in finalize_request
+    response = self.make_response(rv)
+               ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/xiaofengli/miniconda3/lib/python3.12/site-packages/flask/app.py", line 1212, in make_response
+    raise TypeError(
+TypeError: The view function for 'get_health_status' did not return a valid response. The function either returned None or ended without a return statement.
+127.0.0.1 - - [11/Apr/2025 22:51:06] "GET /api/bank_accounts HTTP/1.1" 200 -
+ * Detected change in '/home/xiaofengli/git/quant/asset_tracking/backend/app.py', reloading
+✅ Flask API is running at http://127.0.0.1:5000/
+200 ok.
+200 ok.
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 120-924-889
+✅ Flask API is running at http://127.0.0.1:5000/
+ * Serving Flask app 'app'
+ * Debug mode: on
+[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.191:5000
+[33mPress CTRL+C to quit[0m
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 120-924-889
+127.0.0.1 - - [11/Apr/2025 22:53:17] "GET /api/health HTTP/1.1" 200 -
+✅ Flask API is running at http://127.0.0.1:5000/
+ * Serving Flask app 'app'
+ * Debug mode: on
+[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.191:5000
+[33mPress CTRL+C to quit[0m
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 120-924-889
+127.0.0.1 - - [11/Apr/2025 22:53:39] "GET /api/health HTTP/1.1" 200 -
