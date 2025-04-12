@@ -9,7 +9,7 @@ CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
 
 # ✅ Connect to the Database
 def get_db_connection():
-    db_path = './investment.db'
+    db_path = 'investment.db'
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     return conn
