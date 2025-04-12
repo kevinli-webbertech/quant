@@ -15,6 +15,11 @@ def get_db_connection():
     return conn
 
 # ✅ Fetch all bank accounts
+@app.route('/api/health', methods=['GET'])
+def get_health_status():
+    return "<p>Hello, World!</p>"
+
+# ✅ Fetch all bank accounts
 @app.route('/api/bank_accounts', methods=['GET'])
 def get_bank_accounts():
     conn = get_db_connection()
