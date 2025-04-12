@@ -55,7 +55,7 @@ def CIKLookUp(company_names: list[str]):
 
   companyFilings = pd.DataFrame.from_dict(getFilings.json()['filings']['recent'])
 
-  companyFilings = companyFilings[companyFilings['form'] == '13F-HR'][['accessionNumber', 'filingDate', 'form']]
+  companyFilings = companyFilings[companyFilings['form'] == 'quant_analysis-HR'][['accessionNumber', 'filingDate', 'form']]
   """
 #Case senstitive if you want to use the company name/title, it is a lot easier to just use the ticker as input for CIKLookUp
 print(CIKLookUp(['BHLB','Apple Inc.','UBS','META','COST',"AMERICAN EXPRESS CO","ABBOTT LABORATORIES"]))

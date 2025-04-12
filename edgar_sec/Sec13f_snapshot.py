@@ -3,15 +3,15 @@ import re
 
 """
 To use:
-USE DATABASE 13F;
-SHOW TABLES; <- Shows all the tables within the 13F database
+USE DATABASE quant_analysis;
+SHOW TABLES; <- Shows all the tables within the quant_analysis database
 DESCRIBE _____ <- (table_name) to see the table schema
 SELECT * FROM companies WHERE company_name LIKE '%INPUT TEXT%' - to find all related companies
 Ex. SELECT * FROM companies WHERE company_name LIKE '%Bridgewater Associates%'
-It will return both the companies and their cik key which you can use to find the 13F filings of the company
+It will return both the companies and their cik key which you can use to find the quant_analysis filings of the company
 """
 
-#Inserts all company names with their CIK keys into companies table in 13F database for MySQL
+#Inserts all company names with their CIK keys into companies table in quant_analysis database for MySQL
 def insert_data_into_company_table():
     db = mysql.connector.connect(
         host="localhost",
@@ -21,7 +21,7 @@ def insert_data_into_company_table():
     )
     cursor = db.cursor()
 
-    with open(r"13F/edgar_api/cik-lookup-data.txt", "r") as file:
+    with open(r"quant_analysis/edgar_api/cik-lookup-data.txt", "r") as file:
         for line in file:
             if line.strip():
                 # All text before semicolon is for company_name and after semicolon, is 10 digit cik number when split

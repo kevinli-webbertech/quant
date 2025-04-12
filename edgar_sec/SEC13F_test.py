@@ -87,21 +87,21 @@ for company in companies:
         for row in filing_rows:
             print(row.text.strip())
 
-        # ✅ Find the most recent 13F-HR filing
+        # ✅ Find the most recent quant_analysis-HR filing
         latest_filing_url = None
         for row in filing_rows:
-            if "13F-HR" in row.text:
+            if "quant_analysis-HR" in row.text:
                 link = row.find("a", href=True)
                 if link:
                     latest_filing_url = f"https://www.sec.gov{link['href']}"
                     break  # Stop at the first (latest) match
 
         if not latest_filing_url:
-            raise Exception("❌ No 13F-HR filings found for this company!")
+            raise Exception("❌ No quant_analysis-HR filings found for this company!")
 
-        print(f"📄 Opening latest 13F-HR filing: {latest_filing_url}")
+        print(f"📄 Opening latest quant_analysis-HR filing: {latest_filing_url}")
 
-        # 🟢 Open the 13F-HR filing page
+        # 🟢 Open the quant_analysis-HR filing page
         driver.get(latest_filing_url)
         time.sleep(5)
 
@@ -109,7 +109,7 @@ for company in companies:
         driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
         time.sleep(5)
 
-        # ✅ Parse the 13F-HR filing page to find `infotable.xml`
+        # ✅ Parse the quant_analysis-HR filing page to find `infotable.xml`
         soup = BeautifulSoup(driver.page_source, "html.parser")
         driver.quit()
 
@@ -117,7 +117,7 @@ for company in companies:
         xml_links = [a["href"] for a in soup.find_all("a", href=True) if "infotable.xml" in a["href"]]
 
         if not xml_links:
-            raise Exception("❌ No infotable.xml found inside the 13F-HR filing!")
+            raise Exception("❌ No infotable.xml found inside the quant_analysis-HR filing!")
 
         xml_url = f"https://www.sec.gov{xml_links[0]}"
         print(f"✅ Found XML URL: {xml_url}")
@@ -176,7 +176,7 @@ for company in companies:
         print(df_grouped)
 
 
-# SEC 13F Filing URL - Replace this with the latest filing URL
+# SEC quant_analysis Filing URL - Replace this with the latest filing URL
 sec_13f_url = "https://www.sec.gov/Archives/edgar/data/0001067983/000095012325002701/xslForm13F_X02/infotable.xml"
 
 
