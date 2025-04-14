@@ -5,19 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="362ce666-9b3a-453e-8bd5-2cfc002316ce" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/asset_tracking/scratchsystem/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/asset_tracking/scratchsystem/app.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/asset_tracking/scratchsystem/scratch.db" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/asset_tracking/scratchsystem/symbol_db.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/asset_tracking/scratchsystem/symbol_tracker.db" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/asset_tracking/scratchsystem/templates/edit.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/asset_tracking/scratchsystem/templates/index.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/quant_analysis/strategy/backtest_result.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/quant_analysis/strategy/backtest_three_red_candle.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/quant_analysis/strategy/three_red_candle.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/asset_tracking/backend/investment.db" beforeDir="false" afterPath="$PROJECT_DIR$/asset_tracking/backend/investment.db" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/asset_tracking/frontend/src/BankAccounts.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/asset_tracking/frontend/src/BankAccounts.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/asset_tracking/frontend/src/Bonds.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/asset_tracking/frontend/src/Bonds.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/asset_tracking/frontend/node_modules/.cache/default-development/2.pack" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -55,16 +43,16 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "Python.app.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "main",
-    "last_opened_file_path": "/Users/kamisama/PycharmProjects/quant/quant_analysis"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;Python.app.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/kamisama/PycharmProjects/quant/quant_analysis&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/quant_analysis" />
