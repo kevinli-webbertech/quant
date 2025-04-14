@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
   MaterialReactTable,
-  useMaterialReactTable,
   MRT_ColumnDef,
 } from 'material-react-table';
 import { Button, TextField, Box, Paper } from '@mui/material';
@@ -32,7 +31,12 @@ const Bonds: React.FC = () => {
     comment: '',
   });
 
-  // ✅ Fetch Bonds from API
+  const [errors, setErrors] = useState({
+    bond_name: '',
+    bond_term: '',
+    apy: '',
+  });
+
   useEffect(() => {
     fetch('http://localhost:5000/api/bonds')
       .then((response) => response.json())
@@ -46,12 +50,18 @@ const Bonds: React.FC = () => {
       });
   }, []);
 
-  // ✅ Add a New Bond
+  const validateFields = () => {
+    const newErrors = {
+      bond_name: newBond.bond_name ? '' : 'Bond name is required',
+      bond_term: newBond.bond_term && newBond.bond_term > 0 ? '' : 'Bond term must be > 0',
+      apy: newBond.apy !== undefined && newBond.apy >= 0 ? '' : 'APY must be ≥ 0',
+    };
+    setErrors(newErrors);
+    return !Object.values(newErrors).some((err) => err !== '');
+  };
+
   const addBond = async () => {
-    if (!newBond.bond_name || !newBond.amount || !newBond.bond_term) {
-      alert('Please fill in all required fields');
-      return;
-    }
+    if (!validateFields()) return;
 
     const bondData = {
       bond_name: newBond.bond_name,
@@ -71,22 +81,31 @@ const Bonds: React.FC = () => {
     });
 
     if (response.ok) {
-      setNewBond({ bond_name: '', bond_type: '', bond_term: 0, amount: 0, maturity_date: '', apy: 0, platform: '', comment: '' });
+      setNewBond({
+        bond_name: '',
+        bond_type: '',
+        bond_term: 0,
+        amount: 0,
+        maturity_date: '',
+        apy: 0,
+        platform: '',
+        comment: '',
+      });
       fetch('http://localhost:5000/api/bonds')
         .then((res) => res.json())
         .then(setBonds);
     } else {
-      console.error("Failed to add bond");
+      console.error('Failed to add bond');
     }
   };
 
-  // ✅ Delete Bond
   const deleteBond = async (id: number) => {
-    await fetch(`http://localhost:5000/api/bonds/${id}`, { method: 'DELETE' });
-    setBonds(bonds.filter((bond) => bond.id !== id));
+    if (window.confirm('Are you sure you want to delete this bond?')) {
+      await fetch(`http://localhost:5000/api/bonds/${id}`, { method: 'DELETE' });
+      setBonds(bonds.filter((bond) => bond.id !== id));
+    }
   };
 
-  // ✅ Table Columns
   const columns: MRT_ColumnDef<Bond>[] = [
     { accessorKey: 'bond_name', header: 'Bond Name' },
     { accessorKey: 'bond_type', header: 'Bond Type' },
@@ -100,7 +119,11 @@ const Bonds: React.FC = () => {
       accessorKey: 'id',
       header: 'Actions',
       Cell: ({ cell }: { cell: any }) => (
-        <Button variant="contained" color="secondary" onClick={() => deleteBond(cell.getValue() as number)}>
+        <Button
+          variant="contained"
+          color="secondary"
+          onClick={() => deleteBond(cell.getValue() as number)}
+        >
           Delete
         </Button>
       ),
@@ -111,21 +134,84 @@ const Bonds: React.FC = () => {
     <Paper sx={{ padding: '20px' }}>
       <h2>Bonds</h2>
 
-      {/* ✅ Input Fields for Adding a Bond */}
-      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '20px' }}>
-        <TextField label="Bond Name" value={newBond.bond_name} onChange={(e) => setNewBond({ ...newBond, bond_name: e.target.value })} />
-        <TextField label="Bond Type" value={newBond.bond_type} onChange={(e) => setNewBond({ ...newBond, bond_type: e.target.value })} />
-        <TextField label="Bond Term" type="number" value={newBond.bond_term} onChange={(e) => setNewBond({ ...newBond, bond_term: Number(e.target.value) })} />
-        <TextField label="Maturity Date" type="date" value={newBond.maturity_date || ""} onChange={(e) => setNewBond({ ...newBond, maturity_date: e.target.value })} />
-        <TextField label="Maturity Date" type="date" value={newBond.maturity_date} onChange={(e) => setNewBond({ ...newBond, maturity_date: e.target.value })} />
-        <TextField label="APY (%)" type="number" value={newBond.apy} onChange={(e) => setNewBond({ ...newBond, apy: Number(e.target.value) })} />
-        <TextField label="Platform" value={newBond.platform} onChange={(e) => setNewBond({ ...newBond, platform: e.target.value })} />
-        <TextField label="Comment" value={newBond.comment} onChange={(e) => setNewBond({ ...newBond, comment: e.target.value })} />
+      <Box sx={{ display: 'flex', gap: '10px', marginBottom: '10px', flexWrap: 'wrap' }}>
+        <TextField
+          label="Bond Name"
+          value={newBond.bond_name}
+          onChange={(e) => {
+            const value = e.target.value;
+            setNewBond({ ...newBond, bond_name: value });
+            setErrors((prev) => ({ ...prev, bond_name: value ? '' : 'Bond name is required' }));
+          }}
+          error={!!errors.bond_name}
+          helperText={errors.bond_name}
+        />
+        <TextField
+          label="Bond Type"
+          value={newBond.bond_type}
+          onChange={(e) => setNewBond({ ...newBond, bond_type: e.target.value })}
+        />
+        <TextField
+          label="Bond Term"
+          type="number"
+          inputProps={{ min: 0 }}
+          value={newBond.bond_term}
+          onChange={(e) => {
+            const value = Number(e.target.value);
+            setNewBond({ ...newBond, bond_term: value });
+            setErrors((prev) => ({
+              ...prev,
+              bond_term: value > 0 ? '' : 'Bond term must be > 0',
+            }));
+          }}
+          error={!!errors.bond_term}
+          helperText={errors.bond_term}
+        />
+        <TextField
+          label="Maturity Date"
+          type="date"
+          value={newBond.maturity_date || ''}
+          onChange={(e) => setNewBond({ ...newBond, maturity_date: e.target.value })}
+          InputLabelProps={{ shrink: true }}
+        />
+        <TextField
+          label="APY (%)"
+          type="number"
+          inputProps={{ min: 0, step: 0.01 }}
+          value={newBond.apy}
+          onChange={(e) => {
+            const value = Number(e.target.value);
+            setNewBond({ ...newBond, apy: value });
+            setErrors((prev) => ({
+              ...prev,
+              apy: value >= 0 ? '' : 'APY must be ≥ 0',
+            }));
+          }}
+          error={!!errors.apy}
+          helperText={errors.apy}
+        />
+        <TextField
+          label="Amount ($)"
+          type="number"
+          inputProps={{ min: 0 }}
+          value={newBond.amount}
+          onChange={(e) => setNewBond({ ...newBond, amount: Number(e.target.value) })}
+        />
+        <TextField
+          label="Platform"
+          value={newBond.platform}
+          onChange={(e) => setNewBond({ ...newBond, platform: e.target.value })}
+        />
+        <TextField
+          label="Comment"
+          value={newBond.comment}
+          onChange={(e) => setNewBond({ ...newBond, comment: e.target.value })}
+        />
+        <Button variant="contained" color="primary" onClick={addBond}>
+          Add Bond
+        </Button>
       </Box>
 
-      <Button variant="contained" color="primary" onClick={addBond}>Add Bond</Button>
-
-      {/* ✅ Display Bonds in Table */}
       <MaterialReactTable columns={columns} data={bonds} state={{ isLoading: loading }} />
     </Paper>
   );
