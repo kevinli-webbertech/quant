@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Scratch System</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body class="p-4">
+<div class="container">
+    <h1 class="mb-4">Coding Scratch System</h1>
+
+    <!-- Search -->
+    <form class="mb-4" method="GET" action="/search">
+        <div class="input-group">
+            <input type="text" name="tag" class="form-control" placeholder="Search by tag (e.g. java)" value="{{ tag or '' }}">
+            <button type="submit" class="btn btn-primary">Search</button>
+        </div>
+    </form>
+
+    <!-- Add Symbol Form -->
+    <form method="POST" class="border p-3 rounded mb-4">
+        <h4>Add New Entry</h4>
+        <div class="mb-2">
+            <label>Category:</label>
+            <select name="category" class="form-select" required>
+                <option value="code">code</option>
+                <option value="symbol">symbol</option>
+                <option value="event">event</option>
+                <option value="kb">kb</option>
+            </select>
+        </div>
+        <div class="mb-2">
+            <label>Title:</label>
+            <input type="text" name="title" class="form-control" required>
+        </div>
+        <div class="mb-2">
+            <label>Body:</label>
+            <textarea name="body" class="form-control" rows="4"></textarea>
+        </div>
+        <div class="mb-2">
+            <label>Comment:</label>
+            <input type="text" name="comment" class="form-control">
+        </div>
+        <div class="mb-2">
+            <label>Due Date:</label>
+            <input type="datetime-local" name="due_date" class="form-control">
+        </div>
+        <div class="mb-2">
+            <label>Priority:</label>
+            <select name="priority" class="form-select">
+                <option value="low">low</option>
+                <option value="medium" selected>medium</option>
+                <option value="high">high</option>
+            </select>
+        </div>
+        <div class="mb-2">
+            <label>Tags (comma-separated):</label>
+            <input type="text" name="tags" class="form-control" placeholder="e.g. java, binary tree">
+        </div>
+        <button type="submit" class="btn btn-success">Save Entry</button>
+    </form>
+
+    <!-- Search Results -->
+    {% if results %}
+        <h4>Search Results for "{{ tag }}":</h4>
+        <ul class="list-group mt-3">
+            {% for row in results %}
+                <li class="list-group-item">
+                    <strong>{{ row[1] }}</strong> | Category: {{ row[2] }} | Priority: {{ row[3] }}
+                    <pre style="white-space: pre-wrap">{{ row[4][:200] }}...</pre>
+                    <form action="/delete/{{ row[0] }}" method="POST" style="display:inline;">
+                        <button class="btn btn-sm btn-danger" onclick="return confirm('Delete this entry?')">Delete</button>
+                    </form>
+                    <a href="/edit/{{ row[0] }}" class="btn btn-sm btn-secondary">Edit</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% elif tag %}
+        <p>No results found for "{{ tag }}".</p>
+    {% endif %}
+</div>
+</body>
+</html>
