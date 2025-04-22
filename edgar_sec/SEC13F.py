@@ -1,20 +1,14 @@
-import datetime
-import sys
-import time
 import platform
-import requests
 import pandas as pd
-from SEC13F_util import *
 from bs4 import BeautifulSoup
 from selenium import webdriver
-from functools import lru_cache
+from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
-from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from webdriver_manager.chrome import ChromeDriverManager
+from functools import lru_cache
 
 class SEC13F:
     __headers__ = {
@@ -33,10 +27,8 @@ class SEC13F:
     # Check if the system is Linux
     @lru_cache(maxsize=256)
     def __is_linux(self):
-        if platform.system() == "Linux":
-            return True
-        else:
-            return False
+        return platform.system() == "Linux"
+
 
     """
     param: cik_key (https://www.sec.gov/files/company_tickers.json)
