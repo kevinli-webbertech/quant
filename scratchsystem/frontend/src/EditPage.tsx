@@ -1,8 +1,7 @@
-// EditPage.tsx
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
-  TextField, Box, Button, Select, MenuItem, Typography, InputLabel, FormHelperText
+  TextField, Box, Button, Select, MenuItem, Typography, InputLabel
 } from "@mui/material";
 import { SymbolEntry } from "./types";
 import { updateSymbol } from "./api";
@@ -17,7 +16,7 @@ const EditPage = () => {
     category: "code",
     comment: "",
     due_date: new Date().toISOString().slice(0, 16),
-    priority: "medium",
+    priority: "none",
     tags: [],
   });
 
@@ -25,15 +24,15 @@ const EditPage = () => {
 
   useEffect(() => {
     fetch(`http://localhost:5000/symbols/${id}`)
-      .then((res) => res.json())
-      .then((data) => {
+      .then(res => res.json())
+      .then(data => {
         setForm({
           title: data.title ?? "",
           category: data.category ?? "code",
           body: data.body ?? "",
           comment: data.comment ?? "",
           due_date: data.due_date?.slice(0, 16) ?? new Date().toISOString().slice(0, 16),
-          priority: data.priority ?? "medium",
+          priority: data.priority ?? "none",
           tags: data.tags ?? [],
         });
       });
@@ -50,7 +49,6 @@ const EditPage = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     validateField(name, value);
-
     if (name === "tags") {
       setForm({ ...form, tags: value.split(",").map(tag => tag.trim()) });
     } else {
@@ -75,8 +73,7 @@ const EditPage = () => {
         onChange={handleChange}
         error={errors.title}
         helperText={errors.title ? "Title is required." : ""}
-        fullWidth
-        sx={{ mb: 2 }}
+        fullWidth sx={{ mb: 2 }}
       />
 
       <TextField
@@ -84,10 +81,7 @@ const EditPage = () => {
         name="body"
         value={form.body}
         onChange={handleChange}
-        fullWidth
-        multiline
-        rows={4}
-        sx={{ mb: 2 }}
+        fullWidth multiline rows={4} sx={{ mb: 2, overflowY: "auto" }}
       />
 
       <TextField
@@ -95,8 +89,7 @@ const EditPage = () => {
         name="comment"
         value={form.comment}
         onChange={handleChange}
-        fullWidth
-        sx={{ mb: 2 }}
+        fullWidth multiline rows={4} sx={{ mb: 2, overflowY: "auto" }}
       />
 
       <TextField
@@ -105,9 +98,7 @@ const EditPage = () => {
         name="due_date"
         value={form.due_date}
         onChange={handleChange}
-        fullWidth
-        InputLabelProps={{ shrink: true }}
-        sx={{ mb: 2 }}
+        fullWidth InputLabelProps={{ shrink: true }} sx={{ mb: 2 }}
       />
 
       <InputLabel sx={{ mt: 1 }}>Category</InputLabel>
@@ -115,11 +106,10 @@ const EditPage = () => {
         name="category"
         value={form.category}
         onChange={(e) => setForm({ ...form, category: e.target.value })}
-        fullWidth
-        sx={{ mb: 2 }}
+        fullWidth sx={{ mb: 2 }}
       >
         <MenuItem value="code">Code</MenuItem>
-        <MenuItem value="news">News</MenuItem>
+        <MenuItem value="task">Task</MenuItem>
         <MenuItem value="indicator">Indicator</MenuItem>
       </Select>
 
@@ -128,9 +118,9 @@ const EditPage = () => {
         name="priority"
         value={form.priority}
         onChange={(e) => setForm({ ...form, priority: e.target.value })}
-        fullWidth
-        sx={{ mb: 2 }}
+        fullWidth sx={{ mb: 2 }}
       >
+        <MenuItem value="none">None</MenuItem>
         <MenuItem value="low">Low</MenuItem>
         <MenuItem value="medium">Medium</MenuItem>
         <MenuItem value="high">High</MenuItem>
@@ -143,11 +133,10 @@ const EditPage = () => {
         onChange={handleChange}
         error={errors.tags}
         helperText={errors.tags ? "At least one tag is required." : ""}
-        fullWidth
-        sx={{ mb: 2 }}
+        fullWidth sx={{ mb: 2 }}
       />
 
-      <Button variant="contained" onClick={handleUpdate}>Update Symbol</Button>
+      <Button variant="contained" onClick={handleUpdate}>Update</Button>
     </Box>
   );
 };

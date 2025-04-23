@@ -17,14 +17,14 @@ def create_tables():
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS symbol (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        category TEXT NOT NULL CHECK(category IN ('code', 'news', 'indicator')),
+        category TEXT NOT NULL CHECK(category IN ('code', 'task', 'indicator')),
         title TEXT NOT NULL,
         body TEXT,
         comment TEXT,
         created_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         last_updated_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         due_date TIMESTAMP,
-        priority TEXT CHECK(priority IN ('low', 'medium', 'high'))
+        priority TEXT CHECK(priority IN ('none', 'low', 'medium', 'high'))
     )
     ''')
 
@@ -40,7 +40,6 @@ def create_tables():
 
     conn.commit()
     conn.close()
-
 
 
 def add_tag(tag_name):
@@ -98,27 +97,40 @@ def search_symbols_by_tag(tag_name):
     return results
 
 
-
 def get_symbol_by_id(symbol_id):
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
+
+    # Fetch symbol details
     cursor.execute("SELECT * FROM symbol WHERE id = ?", (symbol_id,))
     row = cursor.fetchone()
+
+    if not row:
+        conn.close()
+        return {"error": "Symbol not found"}
+
+    # Fetch associated tags
+    cursor.execute('''
+        SELECT t.tag_name
+        FROM tag t
+        JOIN symbol_tag st ON t.id = st.tag_id
+        WHERE st.symbol_id = ?
+    ''', (symbol_id,))
+    tags = [tag_row[0] for tag_row in cursor.fetchall()]
     conn.close()
 
-    if row:
-        return {
-            "id": row[0],
-            "category": row[1] or "code",
-            "title": row[2] or "",
-            "body": row[3] or "",
-            "comment": row[4] or "",
-            "created_time": row[5],
-            "last_updated_time": row[6],
-            "due_date": row[7] or "",
-            "priority": row[8] or "medium"
-        }
-    return {"error": "Symbol not found"}
+    return {
+        "id": row[0],
+        "category": row[1] or "code",
+        "title": row[2] or "",
+        "body": row[3] or "",
+        "comment": row[4] or "",
+        "created_time": row[5],
+        "last_updated_time": row[6],
+        "due_date": row[7] or "",
+        "priority": row[8] or "medium",
+        "tags": tags
+    }
 
 
 

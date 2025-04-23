@@ -38,12 +38,10 @@ def search():
                 "priority": row[6] or "medium",
             } for row in raw_results
         ]
-
         return jsonify(results)
     except Exception as e:
         print("❌ Error in /symbols/search:", e)
         return jsonify({"error": str(e)}), 500
-
 
 @app.route("/symbols/<int:symbol_id>", methods=["GET"])
 def get_symbol(symbol_id):
