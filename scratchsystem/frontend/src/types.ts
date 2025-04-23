@@ -15,4 +15,14 @@ export interface SearchResult {
   category: string;
   priority: string;
   body: string;
+  full?: {
+    title: string;
+    category: string;
+    body: string;
+    comment: string;
+    due_date: string;
+    priority: string;
+  };
 }
+
+
