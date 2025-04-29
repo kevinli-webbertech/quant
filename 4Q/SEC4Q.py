@@ -95,7 +95,7 @@ class SECForm4Scraper:
                     to_input.send_keys(to_date)
                     to_input.send_keys(Keys.RETURN)
                 WebDriverWait(driver, 15). until(
-                    EC.presence_of_element_located((By.CLASS_NAME, "dataTables_scrollBody"))
+                    EC.presence_of_element_located((By.ID, "filingsTable"))
                 )
             except TimeoutException as e:
                 print(f"Timeout exception when filtering by date: {e}")
