@@ -110,7 +110,9 @@ class SECForm4Scraper:
             print(f"No 4F filings found for CIK {cik} on date {filing_date}")
 
         result = []
-        for div in data_export_divs[:5]:
+        limit = len(data_export_divs) if filing_date else 5 # Result limit, default: 5
+        print(f"{limit} filings found")
+        for div in data_export_divs[:limit]:
             a_tag = div.find("a", class_="filing-link-all-files")
             if not a_tag:
                 continue
