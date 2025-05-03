@@ -10,6 +10,7 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException
 from webdriver_manager.chrome import ChromeDriverManager
 from functools import lru_cache
 
@@ -52,10 +53,22 @@ class SECForm4Scraper:
 
         return driver
 
-    def get_form4_filings(self, cik, filing_date=None):
+    def get_form4_filings(self, cik, filing_date=None, to_date=None):
         driver = self.get_driver()
         base_url = f"https://www.sec.gov/edgar/browse/?CIK={cik}&owner=only&action=getcompany&type=4"
         driver.get(base_url)
+
+        try:
+            view_all_button = WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.ID, "btnViewAllFilings"))
+            )
+            if "hidden" not in view_all_button.get_attribute("class"):
+                view_all_button.click()
+                WebDriverWait(driver, 10).until(
+                    EC.presence_of_element_located((By.ID, "filingsTable"))
+                )
+        except Exception as e:
+            print(f"Could not expand filings: {e}")
 
         if filing_date:
             try:
@@ -78,26 +91,16 @@ class SECForm4Scraper:
                 from_input.send_keys(filing_date)
                 from_input.send_keys(Keys.RETURN)
                 driver.implicitly_wait(5)
-                to_input.send_keys(filing_date)
-                to_input.send_keys(Keys.RETURN)
-
-                WebDriverWait(driver, 10).until(
-                    EC.presence_of_element_located((By.XPATH, f"//span[contains(text(), '{filing_date}')]"))
-                )
-            except Exception as e:
-                print(f"Could not filter by date: {e}")
-
-        try:
-            view_all_button = WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located((By.ID, "btnViewAllFilings"))
-            )
-            if "hidden" not in view_all_button.get_attribute("class"):
-                view_all_button.click()
-                WebDriverWait(driver, 10).until(
+                if to_date:
+                    to_input.send_keys(to_date)
+                    to_input.send_keys(Keys.RETURN)
+                WebDriverWait(driver, 15). until(
                     EC.presence_of_element_located((By.ID, "filingsTable"))
                 )
-        except Exception as e:
-            print(f"Could not expand filings: {e}")
+            except TimeoutException as e:
+                print(f"Timeout exception when filtering by date: {e}")
+            except Exception as e:
+                print(f"Could not filter by date: {e}")
 
         soup = BeautifulSoup(driver.page_source, "html.parser")
         driver.quit()
@@ -107,7 +110,9 @@ class SECForm4Scraper:
             print(f"No 4F filings found for CIK {cik} on date {filing_date}")
 
         result = []
-        for div in data_export_divs[:5]:
+        limit = len(data_export_divs) if filing_date else 5 # Result limit, default: 5
+        print(f"{limit} filings found")
+        for div in data_export_divs[:limit]:
             a_tag = div.find("a", class_="filing-link-all-files")
             if not a_tag:
                 continue
@@ -222,7 +227,7 @@ if __name__ == "__main__":
     result = []
     for name, cik in companies.items():
         print(f"\n📄 Insider Form 4 Filings for {name}")
-        result.extend(scraper.get_form4_filings(cik))  # Optional: Add `filing_date` "2024-11-13"
+        result.extend(scraper.get_form4_filings(cik, "2025-01-01","2025-04-25"))  # Optional: Add `filing_date` "2024-11-13" and/or `to_date`
     df = pd.json_normalize(result)
     print("\n-------------------------------------------------------------------------------------------Form 4--------------------------------------------------------------------------------------------")
     print(df)
