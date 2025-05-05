@@ -1,6 +1,7 @@
 import platform
 import pandas as pd
 from bs4 import BeautifulSoup
+import requests
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
@@ -9,6 +10,9 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 from functools import lru_cache
+import time
+
+from SEC13F_util import aggregate_holdings, divisibleBy
 
 class SEC13F:
     __headers__ = {
