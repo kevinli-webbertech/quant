@@ -13,6 +13,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 from webdriver_manager.chrome import ChromeDriverManager
 from functools import lru_cache
+import argparse 
 
 class SECForm4Scraper:
     __headers__ = {
@@ -215,6 +216,10 @@ def safe_get_text(soup, tag_chain, default="N/A"):
         return default
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-e", "--export_csv", help="Specify the filename to export dataframe to CSV.")
+    args = parser.parse_args()
+    
     scraper = SECForm4Scraper()
 
     companies = {
@@ -241,4 +246,13 @@ if __name__ == "__main__":
         print(f"DATE RANGE: {filing_date} to {to_date}")
     print(df)
 
+    if args.export_csv:
+        try:
+            with open(args.export_csv, "w", encoding="utf-8") as file:
+                range=f"{filing_date} to {to_date}"
+                file.write(range+"\n")
+                df.to_csv(file, index=True)
+            print(f"\n💾 DataFrame exported to: {args.export_csv}")
+        except Exception as e:
+            print(f"\n⚠️ Error exporting to CSV: {e}")
 
