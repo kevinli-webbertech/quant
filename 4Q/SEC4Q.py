@@ -225,11 +225,20 @@ if __name__ == "__main__":
     }
     df = pd.DataFrame()
     result = []
+    # Date range
+    filing_date="2024-11-01"
+    to_date="2025-04-01"
     for name, cik in companies.items():
         print(f"\n📄 Insider Form 4 Filings for {name}")
-        result.extend(scraper.get_form4_filings(cik, "2025-01-01","2025-04-25"))  # Optional: Add `filing_date` "2024-11-13" and/or `to_date`
+        result.extend(scraper.get_form4_filings(cik, filing_date, to_date))  # Optional: Add `filing_date` "2024-11-13" and/or `to_date`
     df = pd.json_normalize(result)
     print("\n-------------------------------------------------------------------------------------------Form 4--------------------------------------------------------------------------------------------")
+    if filing_date is None:
+        print("NO DATE RANGE")
+    elif to_date is None:
+        print(f"DATE RANGE: {filing_date} to present")
+    else:
+        print(f"DATE RANGE: {filing_date} to {to_date}")
     print(df)
 
 
