@@ -217,7 +217,9 @@ def safe_get_text(soup, tag_chain, default="N/A"):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("-e", "--export_csv", help="Specify the filename to export dataframe to CSV.")
+    parser.add_argument("-f", "--filing_date", help="Specify the filing date in ISO 8601 format YYYY-MM-DD")
+    parser.add_argument("-t", "--to_date", help="Specify the to date in ISO 8601 format format YYYY-MM-DD")
+    parser.add_argument("-e", "--export_csv", help="Export dataframe to CSV.", action='store_true')
     args = parser.parse_args()
     
     scraper = SECForm4Scraper()
@@ -231,8 +233,8 @@ if __name__ == "__main__":
     df = pd.DataFrame()
     result = []
     # Date range
-    filing_date="2024-11-01"
-    to_date="2025-04-01"
+    filing_date=args.filing_date
+    to_date=args.to_date
     for name, cik in companies.items():
         print(f"\n📄 Insider Form 4 Filings for {name}")
         result.extend(scraper.get_form4_filings(cik, filing_date, to_date))  # Optional: Add `filing_date` "2024-11-13" and/or `to_date`
@@ -248,11 +250,9 @@ if __name__ == "__main__":
 
     if args.export_csv:
         try:
-            with open(args.export_csv, "w", encoding="utf-8") as file:
-                range=f"{filing_date} to {to_date}"
-                file.write(range+"\n")
-                df.to_csv(file, index=True)
-            print(f"\n💾 DataFrame exported to: {args.export_csv}")
+            range=f"{filing_date} - {to_date}.csv" if filing_date and to_date else "form4_filings.csv"
+            df.to_csv(range, index=True)
+            print(f"\n💾 DataFrame exported to: {range}")
         except Exception as e:
-            print(f"\n⚠️ Error exporting to CSV: {e}")
+            print(f"\n⚠️ Error exporting to CSV: {range}")
 
