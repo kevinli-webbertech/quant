@@ -158,6 +158,15 @@ def parse_derivative_transactions(xml, filing_date_text):
         code = tx.transactionCoding.transactionCode.text.strip()
         action = tx.transactionAcquiredDisposedCode.value.text.strip()
 
+        shares = tx.transactionAmounts.transactionShares.value.text.strip()
+        price = safe_get_text(tx, ["transactionAmounts", "transactionPricePerShare", "value"])
+        try:
+            shares_num = float(shares)
+            price_num = float(price)
+            total_value = shares_num * price_num
+        except:
+            shares_num = price_num = total_value = None
+
         is_put = "put option" in title.lower()
         is_call = "call option" in title.lower() or "stock option" in title.lower()
 
@@ -193,7 +202,10 @@ def parse_derivative_transactions(xml, filing_date_text):
             "Transaction Code": code,
             "Action": action_type,
             "Filing Date": filing_date_text,
-            "Trade Category": trade_category
+            "Trade Category": trade_category,
+            "Shares": shares,
+            "Price per Share": price,
+            "Total Value": total_value
         })
     if len(transactions) == 0:
         transactions.append({
