@@ -61,7 +61,7 @@ class SECForm4Scraper:
 
         try:
             view_all_button = WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located((By.ID, "btnViewAllFilings"))
+                EC.element_to_be_clickable((By.ID, "btnViewAllFilings"))
             )
             if "hidden" not in view_all_button.get_attribute("class"):
                 view_all_button.click()
