@@ -13,6 +13,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 from webdriver_manager.chrome import ChromeDriverManager
 from functools import lru_cache
+import argparse 
 
 class SECForm4Scraper:
     __headers__ = {
@@ -60,7 +61,7 @@ class SECForm4Scraper:
 
         try:
             view_all_button = WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located((By.ID, "btnViewAllFilings"))
+                EC.element_to_be_clickable((By.ID, "btnViewAllFilings"))
             )
             if "hidden" not in view_all_button.get_attribute("class"):
                 view_all_button.click()
@@ -157,6 +158,15 @@ def parse_derivative_transactions(xml, filing_date_text):
         code = tx.transactionCoding.transactionCode.text.strip()
         action = tx.transactionAcquiredDisposedCode.value.text.strip()
 
+        shares = tx.transactionAmounts.transactionShares.value.text.strip()
+        price = safe_get_text(tx, ["transactionAmounts", "transactionPricePerShare", "value"])
+        try:
+            shares_num = float(shares)
+            price_num = float(price)
+            total_value = shares_num * price_num
+        except:
+            shares_num = price_num = total_value = None
+
         is_put = "put option" in title.lower()
         is_call = "call option" in title.lower() or "stock option" in title.lower()
 
@@ -192,7 +202,10 @@ def parse_derivative_transactions(xml, filing_date_text):
             "Transaction Code": code,
             "Action": action_type,
             "Filing Date": filing_date_text,
-            "Trade Category": trade_category
+            "Trade Category": trade_category,
+            "Shares": shares,
+            "Price per Share": price,
+            "Total Value": total_value
         })
     if len(transactions) == 0:
         transactions.append({
@@ -215,6 +228,12 @@ def safe_get_text(soup, tag_chain, default="N/A"):
         return default
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-f", "--filing_date", help="Specify the filing date in ISO 8601 format YYYY-MM-DD")
+    parser.add_argument("-t", "--to_date", help="Specify the to date in ISO 8601 format format YYYY-MM-DD")
+    parser.add_argument("-e", "--export_csv", help="Export dataframe to CSV.", action='store_true')
+    args = parser.parse_args()
+    
     scraper = SECForm4Scraper()
 
     companies = {
@@ -225,11 +244,27 @@ if __name__ == "__main__":
     }
     df = pd.DataFrame()
     result = []
+    # Date range
+    filing_date=args.filing_date
+    to_date=args.to_date
     for name, cik in companies.items():
         print(f"\n📄 Insider Form 4 Filings for {name}")
-        result.extend(scraper.get_form4_filings(cik, "2025-01-01","2025-04-25"))  # Optional: Add `filing_date` "2024-11-13" and/or `to_date`
+        result.extend(scraper.get_form4_filings(cik, filing_date, to_date))  # Optional: Add `filing_date` "2024-11-13" and/or `to_date`
     df = pd.json_normalize(result)
     print("\n-------------------------------------------------------------------------------------------Form 4--------------------------------------------------------------------------------------------")
+    if filing_date is None:
+        print("NO DATE RANGE")
+    elif to_date is None:
+        print(f"DATE RANGE: {filing_date} to present")
+    else:
+        print(f"DATE RANGE: {filing_date} to {to_date}")
     print(df)
 
+    if args.export_csv:
+        try:
+            range=f"{filing_date} - {to_date}.csv" if filing_date and to_date else "form4_filings.csv"
+            df.to_csv(range, index=True)
+            print(f"\n💾 DataFrame exported to: {range}")
+        except Exception as e:
+            print(f"\n⚠️ Error exporting to CSV: {range}")
 
