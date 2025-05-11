@@ -240,7 +240,7 @@ if __name__ == "__main__":
         "Tesla": "0001318605",
         "Meta": "0001326801",
         "Apple": "0000320193",
-        "asdf":  "0001067983"
+        "Palantir":  "1321655"
     }
     df = pd.DataFrame()
     result = []
