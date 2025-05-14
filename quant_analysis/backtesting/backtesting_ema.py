@@ -3,69 +3,115 @@ import yfinance as yf
 import talib
 import backtrader as bt
 
-# ✅ Step 1: Download Data
-ticker = "NIO"
-df = yf.download(ticker, start="2020-01-01", end="2025-03-14", auto_adjust=False)
-
-# ✅ Step 2: Fix MultiIndex Column Issue
-if isinstance(df.columns, pd.MultiIndex):
-    df.columns = ['_'.join(col) if isinstance(col, tuple) else col for col in df.columns]
-
-df.rename(columns={'Close_NIO': 'Close'}, inplace=True)
-
-print("Updated Columns in DataFrame:", df.columns.tolist())  # Debugging
-
-if 'Close' not in df.columns:
-    print("❌ 'Close' column not found! Exiting.")
-    exit()
-
-df['Close'] = df['Close'].ffill()
-df.dropna(subset=['Close'], inplace=True)
-
-# ✅ Step 3: Compute EMA (Ensuring 1D NumPy Format)
-df['ema_20'] = talib.EMA(df['Close'].astype(float).values.ravel(), timeperiod=20)
-
-# ✅ Step 4: Drop NaN Values to Prevent Index Issues
-df.dropna(inplace=True)
-
-# ✅ Step 5: Define Backtrader Data Feed (Now Includes `ema_20`)
+# ✅ Custom EMA Data Feed
 class PandasDataEMA(bt.feeds.PandasData):
-    lines = ('ema_20',)  # Add EMA-20 as a new line
+    lines = ('ema_20',)
     params = (('ema_20', -1),)
 
-# ✅ Step 6: Define EMA Strategy with Fixed 20-Share Trades
+# ✅ EMA Strategy with Crossover and Logging
 class EMAStrategy(bt.Strategy):
-    initial_cash = 10000
-    cash = initial_cash
-    shares = 0
-    trade_size = 20  # Always trade 20 shares
+    params = dict(initial_cash=10000)
 
     def __init__(self):
         self.ema_cross = bt.indicators.CrossOver(self.data.close, self.data.ema_20)
+        self.cash = self.p.initial_cash
+        self.shares = 0
+        self.trade_size = 20
 
     def next(self):
         price = self.data.close[0]
-        portfolio_value = self.cash + (self.shares * price)  # ✅ Real-time Portfolio Value
+        portfolio_value = self.cash + self.shares * price
 
-        if self.ema_cross > 0:  # BUY SIGNAL
+        if self.ema_cross > 0:
             if self.cash >= price * self.trade_size:
                 self.shares += self.trade_size
                 self.cash -= price * self.trade_size
                 print(f"✅ BUY on {self.data.datetime.date(0)}, Price: {price:.2f}, Portfolio: ${portfolio_value:.2f}")
-
-        elif self.ema_cross < 0:  # SELL SIGNAL
+        elif self.ema_cross < 0:
             if self.shares >= self.trade_size:
                 self.shares -= self.trade_size
                 self.cash += price * self.trade_size
                 print(f"❌ SELL on {self.data.datetime.date(0)}, Price: {price:.2f}, Portfolio: ${portfolio_value:.2f}")
 
     def stop(self):
-        final_value = self.cash + (self.shares * self.data.close[0])
-        print(f"🔹 Final Portfolio Value (EMA Strategy) on 2025-03-14: ${final_value:.2f}")
+        self.final_value = self.cash + self.shares * self.data.close[0]
 
-# ✅ Step 7: Run Backtrader Simulation
-cerebro = bt.Cerebro()
-cerebro.addstrategy(EMAStrategy)
-data = PandasDataEMA(dataname=df)  # ✅ Use Custom Data Feed with `ema_20`
-cerebro.adddata(data)
-cerebro.run()
+# ✅ Run EMA Strategy for a Single Ticker
+def run_ema_backtest(ticker, start_date="2020-01-01", end_date="2025-03-14", initial_cash=10000):
+    try:
+        df = yf.download(ticker, start=start_date, end=end_date, auto_adjust=False, progress=False)
+
+        if isinstance(df.columns, pd.MultiIndex):
+            df.columns = ['_'.join(col).strip() for col in df.columns.values]
+
+        close_cols = [col for col in df.columns if 'Close' in col]
+        if not close_cols:
+            print(f"❌ No close column for {ticker}")
+            return None
+
+        df['Close'] = df[close_cols[0]].ffill()
+        df.dropna(subset=['Close'], inplace=True)
+
+        df['ema_20'] = pd.Series(talib.EMA(df['Close'].astype(float).values.ravel(), timeperiod=20), index=df.index)
+        df.dropna(inplace=True)
+
+        data_feed = PandasDataEMA(dataname=df)
+
+        cerebro = bt.Cerebro()
+        cerebro.addstrategy(EMAStrategy, initial_cash=initial_cash)
+        cerebro.adddata(data_feed)
+        cerebro.run()
+
+        strat = cerebro.runstrats[0][0]
+        return round(strat.final_value, 2)
+
+    except Exception as e:
+        print(f"❌ Error processing {ticker}: {e}")
+        return None
+
+# ✅ Group EMA Backtest with Summary Output
+def batch_ema_backtest(groups, start_date="2020-01-01", end_date="2025-03-14", initial_cash=10000):
+
+    results = {}
+    summary_lines = ["\n## EMA Indicator"]
+
+    for group_name, tickers in groups.items():
+        print(group_name)
+        summary_lines.append(group_name)
+
+        group_result = {}
+        for ticker in tickers:
+            display_name = ticker.upper()
+            final_value = run_ema_backtest(ticker, start_date, end_date, initial_cash)
+
+            if final_value is not None:
+                print(f"{display_name}: {final_value:.2f}")
+                summary_lines.append(f"{display_name}: {final_value:.2f}")
+                group_result[display_name] = final_value
+            else:
+                print(f"{display_name}: ❌ Failed")
+                summary_lines.append(f"{display_name}: ❌ Failed")
+                group_result[display_name] = "Error"
+
+        print()
+        summary_lines.append("")
+        results[group_name] = group_result
+
+    print("\n".join(summary_lines))
+    return results
+
+# ✅ Example Usage
+if __name__ == "__main__":
+    ticker_groups = {
+        "Group 1": ["AAPL", "GOOG", "MSFT"],
+        "Group2": ["SNOW", "ZM"],
+        "Group3": ["NIO"],
+        "Group4": ["TSLA"]
+    }
+
+    ema_results = batch_ema_backtest(
+        ticker_groups,
+        start_date="2020-01-01",
+        end_date="2025-03-14",
+        initial_cash=10000
+    )

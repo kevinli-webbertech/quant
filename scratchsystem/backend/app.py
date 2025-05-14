@@ -10,7 +10,6 @@ create_tables()
 def create_symbol():
     try:
         data = request.get_json()
-        print("Received data:", data)
         symbol_id = add_symbol(
             data["category"], data["title"], data["body"], data["comment"],
             data["due_date"], data["priority"]
@@ -20,7 +19,7 @@ def create_symbol():
         link_symbol_to_tags(symbol_id, data.get("tags", []))
         return jsonify({"id": symbol_id}), 201
     except Exception as e:
-        print("Error in /symbols:", e)
+        print("❌ Error in POST /symbols:", e)
         return jsonify({"error": str(e)}), 500
 
 @app.route("/symbols/search")
@@ -31,31 +30,34 @@ def search():
         results = [
             {
                 "id": row[0],
-                "title": row[1],
-                "category": row[2],
-                "priority": row[3],
-                "body": row[4]
+                "title": row[1] or "",
+                "category": row[2] or "code",
+                "body": row[3] or "",
+                "comment": row[4] or "",
+                "due_date": row[5] or "",
+                "priority": row[6] or "medium",
             } for row in raw_results
         ]
         return jsonify(results)
     except Exception as e:
-        print("Error in /symbols/search:", e)
+        print("❌ Error in /symbols/search:", e)
         return jsonify({"error": str(e)}), 500
 
 @app.route("/symbols/<int:symbol_id>", methods=["GET"])
 def get_symbol(symbol_id):
-    symbol = get_symbol_by_id(symbol_id)
-    return jsonify(symbol)
+    try:
+        result = get_symbol_by_id(symbol_id)
+        if "error" in result:
+            return jsonify(result), 404
+        return jsonify(result)
+    except Exception as e:
+        print("🔥 ERROR in GET /symbols/<id>:", e)
+        return jsonify({"error": str(e)}), 500
 
-@app.route("/symbols/<int:symbol_id>", methods=["PUT"])
-@app.route("/symbols/<int:symbol_id>", methods=["PUT"])
 @app.route("/symbols/<int:symbol_id>", methods=["PUT"])
 def update(symbol_id):
     try:
         data = request.get_json()
-        print(f"\nReceived UPDATE for ID {symbol_id}:")
-        print("Payload:", data)
-
         update_symbol(
             symbol_id,
             data["category"],
@@ -66,26 +68,20 @@ def update(symbol_id):
             data["priority"]
         )
 
-        # Remove old tags
         conn = sqlite3.connect(DB_NAME)
         cursor = conn.cursor()
         cursor.execute("DELETE FROM symbol_tag WHERE symbol_id = ?", (symbol_id,))
         conn.commit()
         conn.close()
 
-        print("Old tags removed.")
-
-        # Re-link new tags (if any)
         for tag in data.get("tags", []):
             add_tag(tag)
         link_symbol_to_tags(symbol_id, data.get("tags", []))
 
-        print("New tags linked.")
         return jsonify({"status": "updated"}), 200
     except Exception as e:
-        print("❌ Error in PUT /symbols/<id>:", e)
+        print("🔥 Error in PUT /symbols/<id>:", e)
         return jsonify({"error": str(e)}), 500
-
 
 @app.route("/symbols/<int:symbol_id>", methods=["DELETE"])
 def delete(symbol_id):
@@ -93,7 +89,7 @@ def delete(symbol_id):
         delete_symbol(symbol_id)
         return jsonify({"status": "deleted"}), 200
     except Exception as e:
-        print("Error in DELETE /symbols/<id>:", e)
+        print("🔥 Error in DELETE /symbols/<id>:", e)
         return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
